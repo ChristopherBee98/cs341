@@ -1,0 +1,166 @@
+#ifndef _MINMAXHEAP_CPP_
+#define _MINMAXHEAP_CPP_
+
+#include "MinMaxHeap.h"
+
+template <typename T>
+bool compareHeapLT(T item1, T item2);
+template <typename T>
+bool compareHeapGT(T item1, T item2);
+
+template <typename T>
+MinMaxHeap<T>::MinMaxHeap(int capacity) {
+  m_capacity = capacity+1;
+  m_size = 0;
+  m_min = new Heap<T>;
+  m_max = new Heap<T>;
+  m_min->m_heapArray = new TwinData<T>*[capacity];
+  m_max->m_heapArray = new TwinData<T>*[capacity];
+  m_min->m_heapArray[1] = NULL;
+  m_max->m_heapArray[1] = NULL;
+  m_min->otherHeap = m_max;
+  m_max->otherHeap = m_min;
+  m_min->truthFunc = &compareHeapLT;
+  m_max->truthFunc = &compareHeapGT;
+}
+
+template <typename T>
+MinMaxHeap<T>::MinMaxHeap(const MinMaxHeap<T>& other) {
+}
+
+template <typename T>
+MinMaxHeap<T>::~MinMaxHeap() {
+  for (int i = 1; i <= m_size; i++) {
+    delete m_min->m_heapArray[i];
+  }
+  for (int j = 1; j <= m_size; j++) {
+    delete m_max->m_heapArray[j];
+  }
+  //makes sure the pointers aren't pointing at anything
+  delete []m_min->m_heapArray;
+  delete []m_max->m_heapArray;
+  delete m_min;
+  delete m_max;
+}
+
+template <typename T>
+const MinMaxHeap<T>& MinMaxHeap<T>::operator=(const MinMaxHeap<T>& rhs) {
+}
+
+template <typename T>
+int MinMaxHeap<T>::size() {
+  return m_size;
+}
+
+template <typename T>
+void MinMaxHeap<T>::insert(const T& data) {
+  int temp;
+  int posMin = 1;
+  int posMax = 1;
+  TwinData<T>* newNode1;
+  TwinData<T>* newNode2;
+  if (m_min->m_heapArray[posMin] == NULL && m_max->m_heapArray[posMax] == NULL) {
+    newNode1 = new TwinData<T>(data, 1);
+    newNode2 = new TwinData<T>(data, 1);
+    m_min->m_heapArray[posMin] = newNode1;
+    m_max->m_heapArray[posMax] = newNode2;
+    m_size++;
+  } else {
+    posMin = ++m_size;
+    posMax = m_size;
+    newNode1 = new TwinData<T>(data, posMax);
+    newNode2 = new TwinData<T>(data, posMin);
+    //update index
+    while (posMin > 1 && m_min->truthFunc(data, m_min->m_heapArray[posMin/2]->m_data)) {
+      m_min->m_heapArray[posMin] = m_min->m_heapArray[posMin/2];
+      m_max->updateIndex();
+      posMin /= 2;
+    }
+    m_min->m_heapArray[posMin] = newNode1;
+    while (posMax > 1 && m_max->truthFunc(data, m_max->m_heapArray[posMax/2]->m_data)) {
+      m_max->m_heapArray[posMax] = m_max->m_heapArray[posMax/2];
+      m_min->updateIndex();
+      posMax /= 2;
+    }
+    m_max->m_heapArray[posMax] = newNode2;
+    dump();
+  }
+}
+
+template <typename T>
+T MinMaxHeap<T>::deleteMin() {
+}
+
+template <typename T>
+T MinMaxHeap<T>::deleteMax() {
+}
+
+template <typename T>
+void MinMaxHeap<T>::dump() {
+  cout << "... MinMaxHeap::dump() ..." << endl;
+  cout << endl;
+  cout << "----------Min----------" << endl;
+  cout << "size = " << m_size << ", capacity = " << m_capacity-1 << endl;
+  for (int i = 1; i <= m_size; i++) {
+    cout << "Heap[" << i << "] = (" << m_min->m_heapArray[i]->m_data << ", " << m_min->m_heapArray[i]->m_twinIndex << ")" << endl;
+  }
+  cout << "----------Max----------" << endl;
+  cout << "size = " << m_size << ", capacity = " << m_capacity-1 << endl;
+  for (int i = 1; i <= m_size; i++) {
+    cout << "Heap[" << i << "] = (" << m_max->m_heapArray[i]->m_data << ", " << m_max->m_heapArray[i]->m_twinIndex << ")" << endl;
+  }
+  cout << "-----------------------" << endl;
+}
+
+template <typename T>
+void MinMaxHeap<T>::locateMin(int pos, T& data, int& index) {
+}
+
+template <typename T>
+void MinMaxHeap<T>::locateMax(int pos, T& data, int& index) {
+}
+
+template <typename T>
+Heap<T>::Heap() {
+  m_heapArray = NULL;
+  otherHeap = NULL;
+  truthFunc = NULL;
+}
+
+template <typename T>
+Heap<T>::~Heap() {
+}
+
+template <typename T>
+TwinData<T>::TwinData(T data, int twinIndex) {
+  m_data = data;
+  m_twinIndex = twinIndex;
+}
+
+template <typename T>
+TwinData<T>::~TwinData() {
+}
+
+template <typename T>
+void Heap<T>::updateIndex() {
+  //otherHeap is pointer to the max/min heap
+  //need to check if the twinindex is still valid
+  
+}
+
+template <typename T>
+bool compareHeapLT(T item1, T item2) {
+  if (item1 < item2)
+    return true;
+  else
+    return false;
+}
+
+template <typename T>
+bool compareHeapGT(T item1, T item2) {
+  if (item1 > item2)
+    return true;
+  else
+    return false;
+}
+#endif

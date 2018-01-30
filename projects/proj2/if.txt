@@ -1,0 +1,5 @@
+1 2 > IFTHEN
+. "It's true!" . CR
+ELSE
+. "It's false!" . CR
+ENDIF

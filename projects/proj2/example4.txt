@@ -1,0 +1,9 @@
+1 x SET
+x @ . CR
+
+x @ 1 + x !
+x @ . CR
+
+0 y SET
+x @ 2 + y !
+y @ . CR
